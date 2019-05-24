@@ -74,6 +74,43 @@ function Show-AvaloniaWindow {
     [PSAvaloniaApp]::Run($window)
 }
 
+function Out-AvaloniaGridView {
+    [CmdletBinding(DefaultParameterSetName='PassThru')]
+    param(
+        [Parameter(ValueFromPipeline=$true)]
+        [psobject]
+        $InputObject,
+
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Title = "Out-AvaloniaGridView Window",
+
+        [Parameter(ParameterSetName='Wait')]
+        [switch]
+        $Wait,
+
+        [Parameter(ParameterSetName='OutputMode')]
+        [ValidateSet('None', 'Single', 'Multiple')]
+        [string]
+        $OutputMode,
+
+        [Parameter(ParameterSetName='PassThru')]
+        [switch]
+        $PassThru
+    )
+
+    begin {
+        $allInputObject = [List[PSObject]]::new()
+    }
+
+    process {
+        $allInputObject.Add($_)
+    }
+
+    end {
+        $allInputObject
+    }
+}
 
 function New-AvaloniaStyle {
     [CmdletBinding()]
@@ -88,5 +125,25 @@ function New-AvaloniaStyle {
     $iStyle
 }
 
+Add-Type -Namespace PSAvalonia -Name "NativeLibraries" -MemberDefinition @'
+    [DllImport("kernel32")]public static extern IntPtr LoadLibrary(string path);
+    [DllImport("libdl")]public static extern IntPtr dlopen(string path, int flags);
+'@
+
+if ($IsLinux -and [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture -eq [System.Runtime.InteropServices.Architecture]::Arm) {
+    [PSAvalonia.NativeLibraries]::dlopen("$PSScriptRoot/lib/Avalonia.Skia.Linux.Natives/runtimes/linux-arm/native/libSkiaSharp.so", 0)
+}
+elseif ($IsLinux) {
+    [PSAvalonia.NativeLibraries]::dlopen("$PSScriptRoot/lib/Avalonia.Skia.Linux.Natives/runtimes/linux-x64/native/libSkiaSharp.so", 0)
+}
+elseif ($IsMacOS) {
+    [PSAvalonia.NativeLibraries]::dlopen("$PSScriptRoot/lib/SkiaSharp/runtimes/osx/native/libSkiaSharp.dylib", 0)
+}
+elseif ($IsWindows -and [System.Environment]::Is64BitProcess) {
+    [PSAvalonia.NativeLibraries]::LoadLibrary("$PSScriptRoot\lib\SkiaSharp\runtimes\win-x64\native\libSkiaSharp.dll")
+}
+elseif ($IsWindows) {
+    [PSAvalonia.NativeLibraries]::LoadLibrary("$PSScriptRoot\lib\SkiaSharp\runtimes\win-x86\native\libSkiaSharp.dll")
+}
 
 Export-ModuleMember -Function *

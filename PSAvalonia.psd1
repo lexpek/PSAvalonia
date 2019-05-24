@@ -73,6 +73,7 @@ RequiredAssemblies = @(
     "./lib/Serilog.Sinks.Trace/lib/netstandard1.3/Serilog.Sinks.Trace.dll"
     "./lib/System.Reactive/lib/netstandard2.0/System.Reactive.dll"
     "./lib/SkiaSharp/lib/netstandard1.3/SkiaSharp.dll"
+    "./lib/Avalonia.Controls.DataGrid/lib/netstandard2.0/Avalonia.Controls.DataGrid.dll"
 )
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.

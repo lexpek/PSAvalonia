@@ -23,6 +23,7 @@ $pckgList = [ordered]@{
     'Serilog'                       = '2.8.0'
     'Serilog.Sinks.Debug'           = '1.0.0'
     'Serilog.Sinks.Trace'           = '2.1.0'
+    'Avalonia.Controls.DataGrid'      = '0.8.0'
 }
 
 if ( -not ( Test-Path $pckgParams.Destination ) ) {
