@@ -1,0 +1,12 @@
+# ignore cmd
+/*.cmd
+# ignore temp
+/temp/*
+/tmp/*
+# ignore binary files and folders
+/bin/*
+/obj/*
+/lib/*
+# ignore visual studio artifacts
+*.suo
+/.vs/

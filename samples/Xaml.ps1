@@ -1,34 +1,29 @@
-$app = [Avalonia.Application]::new()
-
-$builder = [Avalonia.AppBuilder]::Configure($app)
-$builder = [Avalonia.AppBuilderDesktopExtensions]::UsePlatformDetect($builder)
-try {
-    $builder = $builder.SetupWithoutStarting()
-}
-catch {
-    if ( $_.Exception.InnerException -isnot [System.InvalidOperationException] ) {
-        throw $_
-    }
-}
-
-$window = [Avalonia.Markup.Xaml.AvaloniaXamlLoader]::new().Load(@'
+$window = ConvertTo-AvaloniaWindow -Xaml @'
 <Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        Title="AvaloniaApplication1">
+        Width="800"
+        Height="50"
+        Title="SampleXaml">
     <Window.Styles>
         <StyleInclude Source="avares://Avalonia.Themes.Default/DefaultTheme.xaml"/>
         <StyleInclude Source="avares://Avalonia.Themes.Default/Accents/BaseLight.xaml"/>
     </Window.Styles>
-    <DockPanel>
-        <Button DockPanel.Dock="Bottom">Add an item</Button>
-        <StackPanel>
-          <CheckBox Margin="4">Walk the dog</CheckBox>
-          <CheckBox Margin="4">Buy some milk</CheckBox>
-        </StackPanel>
-    </DockPanel>
+    <StackPanel>
+        <Grid ColumnDefinitions="100,200,100,*">
+            <TextBlock Name="lbl"  Grid.Column="0" Margin="5">Enter text</TextBlock>
+            <TextBox   Name="txt"  Grid.Column="1" Margin="5"></TextBox>
+            <Button    Name="btn"  Grid.Column="2" Margin="5">Submit</Button>
+            <TextBlock Name="rslt" Grid.Column="3" Margin="5"></TextBlock>
+        </Grid>
+    </StackPanel>
 </Window>
-'@)
-$app.Run($window)
+'@
+
+$txt  = Find-AvaloniaControl -Window $window -Name txt
+$rslt = Find-AvaloniaControl -Window $window -Name rslt
+$btn  = Find-AvaloniaControl -Window $window -Name btn
+
+$btn.add_Click({
+    $rslt.Text = $txt.Text + " => OK"
+})
+
+Show-AvaloniaWindow -Window $window
