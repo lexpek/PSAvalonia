@@ -17,7 +17,10 @@ class PSAvaloniaApp {
         $builder = [Avalonia.AppBuilder]::Configure([PSAvaloniaApp]::Instance)
         $builder = [Avalonia.AppBuilderDesktopExtensions]::UsePlatformDetect($builder)
         if ( [PSAvaloniaApp]::AlreadySetup -eq $false ) {
-            $builder = $builder.SetupWithoutStarting()
+            try {
+                $builder = $builder.SetupWithoutStarting()
+            }
+            catch {}
         }
         [PSAvaloniaApp]::AlreadySetup = $true
     }
@@ -83,8 +86,9 @@ function Out-AvaloniaGridView {
 
         [ValidateNotNullOrEmpty()]
         [string]
-        $Title = "Out-AvaloniaGridView Window",
-
+        $Title = "Out-AvaloniaGridView Window" 
+        <#,
+        
         [Parameter(ParameterSetName='Wait')]
         [switch]
         $Wait,
@@ -97,18 +101,52 @@ function Out-AvaloniaGridView {
         [Parameter(ParameterSetName='PassThru')]
         [switch]
         $PassThru
+        #>
     )
 
     begin {
-        $allInputObject = [List[PSObject]]::new()
+        $allObject = [List[PSObject]]::new()
+        $xaml = @'
+<Window xmlns="https://github.com/avaloniaui"
+        Width="1000"
+        Height="475"
+        Title="{0}">
+    <Window.Styles>
+        <StyleInclude Source="avares://Avalonia.Themes.Default/DefaultTheme.xaml"/>
+        <StyleInclude Source="avares://Avalonia.Themes.Default/Accents/BaseLight.xaml"/>
+        <StyleInclude Source="resm:Avalonia.Controls.DataGrid.Themes.Default.xaml?assembly=Avalonia.Controls.DataGrid"/>
+        <Style Selector="DataGrid">
+            <Setter Property="RowBackground" Value="White" />
+            <Setter Property="AlternatingRowBackground" Value="LightGray" />
+        </Style>
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="Padding" Value="2,5,2,5"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style Selector="DataGridRow">
+            <Setter Property="Foreground" Value="Black" />
+        </Style>
+    </Window.Styles>
+    <DataGrid Name="OutAvaloniaGridView"  
+        Margin="0"
+        CanUserResizeColumns="True"
+        CanUserReorderColumns="True">
+    </DataGrid>
+</Window>
+'@ -f $title
+        $window = ConvertTo-AvaloniaWindow -Xaml $xaml
+        $dataGrid  = Find-AvaloniaControl -Window $window -Name OutAvaloniaGridView
+        $dataGrid.AutoGenerateColumns = $true
     }
 
     process {
-        $allInputObject.Add($_)
+        $allObject.Add($_)
     }
 
     end {
-        $allInputObject
+        $inputObjectType = $allObject[0].GetType()
+        $dataGrid.Items = [Avalonia.Collections.AvaloniaList`1].MakeGenericType($inputObjectType)::new($allObject)
+        Show-AvaloniaWindow -Window $window
     }
 }
 
