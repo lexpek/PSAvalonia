@@ -34,7 +34,3 @@ foreach ( $pckg in $pckgList.GetEnumerator() ) {
     Install-Package @pckgParams -Name $pckg.Key -RequiredVersion $pckg.Value
 }
 
-$skiaSharpDestination = Join-Path $pckgParams.Destination "SkiaSharp/lib/netstandard1.3"
-Copy-Item ( Join-Path $pckgParams.Destination "SkiaSharp/runtimes/osx/native/libSkiaSharp.dylib")                      -Destination $skiaSharpDestination
-Copy-Item ( Join-Path $pckgParams.Destination "SkiaSharp/runtimes/win-x64/native/libSkiaSharp.dll")                    -Destination $skiaSharpDestination
-Copy-Item ( Join-Path $pckgParams.Destination "Avalonia.Skia.Linux.Natives/runtimes/linux-x64/native/libSkiaSharp.so") -Destination $skiaSharpDestination
